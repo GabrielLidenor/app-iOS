@@ -5,6 +5,7 @@
 #import <WebKit/WebKit.h>
 
 #import "MMMPostDetailViewController.h"
+#import "HexColor.h"
 #import "MMMLogoImageView.h"
 #import "MMMPost.h"
 #import "MMMPostsTableViewController.h"
@@ -184,9 +185,29 @@ typedef NS_ENUM(NSUInteger, MMMLinkClickType) {
 }
 
 - (void)setupNavigationBar {
-    self.titleView = nil;
-    self.activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"dark_mode"]) {
+		self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
+		self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+		self.navigationController.navigationBar.barTintColor = [UIColor blackColor];
+		UIApplication.sharedApplication.statusBarStyle = UIStatusBarStyleLightContent;
+		self.view.backgroundColor = [UIColor blackColor];
+		
+	} else {
+		self.navigationController.navigationBar.barStyle = UIBarStyleDefault;
+		self.navigationController.navigationBar.tintColor = [UIColor colorWithHexString:@"#0097d4"];
+		self.navigationController.navigationBar.barTintColor = [UIColor whiteColor];
+		UIApplication.sharedApplication.statusBarStyle = UIStatusBarStyleDefault;
+		self.view.backgroundColor = [UIColor whiteColor];
+	}
+
+	self.titleView = nil;
+    self.activityView = [[UIActivityIndicatorView alloc] init];
     [self.activityView setFrame:CGRectMake(0, 0, 20.0f, 20.0f)];
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"dark_mode"]) {
+		self.activityView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+	} else {
+		self.activityView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+	}
     [self.activityView startAnimating];
     self.titleView = self.activityView;
     self.navigationItem.titleView = self.titleView;
@@ -222,6 +243,12 @@ typedef NS_ENUM(NSUInteger, MMMLinkClickType) {
 			[rightButton setImage:[UIImage imageNamed:@"shareIcon"] forState:UIControlStateNormal];
 			[rightButton addTarget:self action:@selector(actionButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
 			
+			if ([[NSUserDefaults standardUserDefaults] boolForKey:@"dark_mode"]) {
+				rightButton.tintColor = [UIColor whiteColor];
+			} else {
+				rightButton.tintColor = [UIColor colorWithHexString:@"#0097d4"];
+			}
+
 			// UIView just to handle the UIBarButtonItem position
 			UIView *rightButtonView = [[UIView alloc] init];
 			[rightButton setFrame:CGRectMake(0, 0, iconSize, iconSize)];
@@ -265,11 +292,25 @@ typedef NS_ENUM(NSUInteger, MMMLinkClickType) {
                 });
             }
 
+			if ([[NSUserDefaults standardUserDefaults] boolForKey:@"dark_mode"]) {
+				nextButton.tintColor = [UIColor whiteColor];
+				previousButton.tintColor = [UIColor whiteColor];
+			} else {
+				nextButton.tintColor = [UIColor colorWithHexString:@"#0097d4"];
+				previousButton.tintColor = [UIColor colorWithHexString:@"#0097d4"];
+			}
+
 			[icons addObject:nextPostRightItem];
 			[icons addObject:previousPostRightItem];
 		} else {
 			UIBarButtonItem *share = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"shareIcon"] style:UIBarButtonItemStylePlain target:self action:@selector(actionButtonTapped:)];
 			
+			if ([[NSUserDefaults standardUserDefaults] boolForKey:@"dark_mode"]) {
+				share.tintColor = [UIColor whiteColor];
+			} else {
+				share.tintColor = [UIColor colorWithHexString:@"#0097d4"];
+			}
+
 			self.rightItem = share;
 			[icons addObject:self.rightItem];
 		}
@@ -352,11 +393,30 @@ typedef NS_ENUM(NSUInteger, MMMLinkClickType) {
     decisionHandler(actionPolicy);
 }
 
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+	NSString *fontSize = [[NSUserDefaults standardUserDefaults] stringForKey:@"font-size-settings"];
+	if (![fontSize isEqualToString:@""]) {
+		NSString *cssURL = [@"https://macmagazine.com.br/wp-content/files/app/" stringByAppendingFormat:@"%@.css", fontSize];
+		NSString *javascriptString = @"var fileref = document.createElement('link'); fileref.setAttribute('rel', 'stylesheet'); fileref.setAttribute('type', 'text/css'); fileref.setAttribute('href', '%@'); document.getElementsByTagName('head')[0].appendChild(fileref)";
+		NSString *javascriptWithCSSString = [NSString stringWithFormat:javascriptString, cssURL];
+		[webView evaluateJavaScript:javascriptWithCSSString completionHandler:nil];
+	}
+	fontSize = nil;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"dark_mode"]) {
+		NSString *cssURL = @"https://macmagazine.com.br/wp-content/files/app/darmode.css";
+		NSString *javascriptString = @"var fileref = document.createElement('link'); fileref.setAttribute('rel', 'stylesheet'); fileref.setAttribute('type', 'text/css'); fileref.setAttribute('href', '%@'); document.getElementsByTagName('head')[0].appendChild(fileref)";
+		NSString *javascriptWithCSSString = [NSString stringWithFormat:javascriptString, cssURL];
+		[webView evaluateJavaScript:javascriptWithCSSString completionHandler:nil];
+	}
+}
+
+
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-	
+
 	self.shouldHideHomeIndicator = NO;
     
     [[NSNotificationCenter defaultCenter] addObserver:self

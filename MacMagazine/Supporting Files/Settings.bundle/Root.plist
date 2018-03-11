@@ -8,39 +8,11 @@
 	<array>
 		<dict>
 			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-			<key>Title</key>
-			<string></string>
-			<key>FooterText</key>
-			<string>Se a opção &quot;Push para todos os posts&quot; estiver desativada, você só receberá notificações de posts-destaque. As alterações que fizer acima só surtirão efeito na próxima vez em que o app for aberto.</string>
-		</dict>
-		<dict>
-			<key>Type</key>
 			<string>PSChildPaneSpecifier</string>
 			<key>Title</key>
 			<string>Licenças</string>
 			<key>File</key>
 			<string>Pods-settings-metadata</string>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>Push para todos os posts</string>
-			<key>Key</key>
-			<string>all_posts_pushes</string>
-			<key>DefaultValue</key>
-			<false/>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>Limpar cache do app</string>
-			<key>Key</key>
-			<string>clear_cache</string>
-			<key>DefaultValue</key>
-			<false/>
 		</dict>
 	</array>
 </dict>
